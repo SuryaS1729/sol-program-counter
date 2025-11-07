@@ -1,10 +1,14 @@
 use solana_program::{
-    account_info::{AccountInfo, next_account_info},
-    entrypoint,
-    entrypoint::ProgramResult,
+    account_info::{AccountInfo, next_account_info, next_account_infos},
+    entrypoint::{self, ProgramResult},
     msg,
     pubkey::Pubkey,
 };
+
+enum InstructionType {
+    Increment(u32),
+    Decrement(u32),
+}
 
 entrypoint!(counter_contract);
 
@@ -13,5 +17,5 @@ pub fn counter_contract(
     accounts: &[AccountInfo],
     instruction_data: &[u8],
 ) -> ProgramResult {
-    Ok(())
+    let acc = next_account_info(&mut accounts.iter())?;
 }
