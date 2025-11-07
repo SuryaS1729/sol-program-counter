@@ -1,14 +1,17 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use solana_program::{
+    account_info::{AccountInfo, next_account_info},
+    entrypoint,
+    entrypoint::ProgramResult,
+    msg,
+    pubkey::Pubkey,
+};
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+entrypoint!(counter_contract);
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 3);
-    }
+pub fn counter_contract(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8],
+) -> ProgramResult {
+    Ok(())
 }
