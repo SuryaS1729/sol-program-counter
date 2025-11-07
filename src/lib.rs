@@ -1,6 +1,7 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{
-    account_info::{AccountInfo, next_account_info, next_account_infos},
+    account_info::{AccountInfo, next_account_info},
+    entrypoint,
     entrypoint::{self, ProgramResult},
     msg,
     pubkey::Pubkey,
@@ -31,10 +32,12 @@ pub fn counter_contract(
 
     match instruction_type {
         InstructionType::Decrement(value) => {
-            counter_data.count += value;
+            msg!("executing decrease");
+            counter_data.count -= value;
         }
         InstructionType::Increment(value) => {
-            counter_data.count -= value;
+            msg!("executing increase");
+            counter_data.count += value;
         }
     }
     counter_data.serialize(&mut *acc.data.borrow_mut());
