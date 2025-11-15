@@ -2,44 +2,45 @@ use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{
     account_info::{AccountInfo, next_account_info},
     entrypoint,
-    entrypoint::{self, ProgramResult},
+    entrypoint::ProgramResult,
     msg,
     pubkey::Pubkey,
 };
 
 #[derive(BorshSerialize, BorshDeserialize)]
-enum InstructionType {
+struct Counter {
+    count: u32, // 10
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+enum CounterInstruction {
     Increment(u32),
     Decrement(u32),
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
-struct Counter {
-    count: u32,
-}
+entrypoint!(process_instruction);
 
-entrypoint!(counter_contract);
-
-pub fn counter_contract(
-    program_id: &Pubkey,
+pub fn process_instruction(
+    _program_id: &Pubkey,
     accounts: &[AccountInfo],
-    instruction_data: &[u8],
+    instruction_data: &[u8], // 0 , 0 0 0 1
 ) -> ProgramResult {
-    let acc: &AccountInfo<'_> = next_account_info(&mut accounts.iter())?;
-    let mut counter_data = Counter::try_from_slice(&acc.data.borrow())?;
+    // Ok, Err(ProgramError)
+    let account = next_account_info(&mut accounts.iter())?;
+    let mut counter = Counter::try_from_slice(&account.data.borrow())?; // 10
 
-    let instruction_type = InstructionType::try_from_slice(instruction_data)?;
-
-    match instruction_type {
-        InstructionType::Decrement(value) => {
-            msg!("executing decrease");
-            counter_data.count -= value;
+    match CounterInstruction::try_from_slice(instruction_data)? {
+        CounterInstruction::Increment(amount) => {
+            counter.count += amount; // 11
         }
-        InstructionType::Increment(value) => {
-            msg!("executing increase");
-            counter_data.count += value;
+        CounterInstruction::Decrement(amount) => {
+            counter.count -= amount;
         }
     }
-    counter_data.serialize(&mut *acc.data.borrow_mut());
+
+    counter.serialize(&mut *account.data.borrow_mut())?;
+
+    msg!("Counter updated to {}", counter.count);
+
     Ok(())
 }
